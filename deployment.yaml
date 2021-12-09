@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: devops-test 
-          image: 724526322405.dkr.ecr.us-west-2.amazonaws.com/flutterwaveweb:{{IMAGE_VERSION}}
+          image: 72122322405.dkr.ecr.us-west-2.amazonaws.com/devops-test:{{IMAGE_VERSION}}
           ports:
             - containerPort: 3000
           resources:
