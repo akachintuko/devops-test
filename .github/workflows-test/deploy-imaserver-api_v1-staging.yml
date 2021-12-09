@@ -11,7 +11,12 @@ env:
   K8S_NAMESPACE: default
   K8S_DEPLOYMENT: default
   AWS_REGION: eu-west-2
-  EKS_CLUSTER_NAME: api-v1-staging-eks
+  EKS_CLUSTER_NAME: api-v1-staging-eks 
+  AWS_DEFAULT_OUTPUT: json
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  CONTAINER_IMAGE: devops-test:${{ github.sha }}
 
 jobs:
   build:
@@ -49,7 +54,10 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: imaserver
-          IMAGE_TAG: staging
+          IMAGE_TAG: staging 
+        docker build \
+          -t $CONTAINER_IMAGE \
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$CONTAINER_IMAGE ./devops-test
 
       #setup kubeconfig
       - name: Setup kubeconfig
@@ -60,9 +68,13 @@ jobs:
         id: deploy-k8s-yaml
         env:
           K8S_YAML_DIR: ./
-          IMAGE_NAME: ${{ steps.build-image.outputs.image }}
-        run: |
-          # Verify deployment
+          IMAGE_NAME: ${{ steps.build-image.outputs.image }} 
+      run: |
+        # Setup kustomize
+        deployment.yaml edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+        cat kustomization.yaml
+        
+        
 
           # List Public IP of cluster
 
